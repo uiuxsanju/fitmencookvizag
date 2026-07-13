@@ -1,6 +1,9 @@
 "use client";
 // ============================================================
 // FITMEN COOK — Personalized Nutrition Dashboard
+// MyFitnessPal depth × WHOOP rings × Apple Health clarity,
+// in FITMEN COOK brand (ink / amber / cream).
+// Signature element: animated Score Rings.
 // ============================================================
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -14,7 +17,7 @@ import {
 } from "@/lib/nutrition-data";
 
 // ---- CONFIG --------------------------------------------------
-const WHATSAPP_NUMBER = "919101128893";
+const WHATSAPP_NUMBER = "919999999999"; // ← replace with FITMEN COOK number
 
 // ---- Types ---------------------------------------------------
 type Goal = "lose" | "maintain" | "gain";
@@ -83,11 +86,13 @@ function scoreMeals(p: Profile, plan: Plan): Scored[] {
       const warnings: string[] = [];
       let match = 52;
 
+      // Goal alignment via tags
       const hits = m.bestFor.filter((t) => GOAL_TAGS[p.goal].includes(t)).length;
       match += hits * 9;
       if (hits) reasons.push(`Tagged for ${GOAL_TAGS[p.goal][0].toLowerCase()} by our chefs`);
 
-      const proDensity = (n.protein * 4) / n.calories;
+      // Macro fit
+      const proDensity = (n.protein * 4) / n.calories; // % kcal from protein
       if (p.goal === "gain" && proDensity > 0.3) { match += 10; reasons.push(`${n.protein}g protein per serving fuels muscle synthesis`); }
       if (p.goal === "lose") {
         if (n.calories <= plan.cal / 3) { match += 8; reasons.push(`${n.calories} kcal fits inside your ${plan.cal} kcal budget`); }
@@ -96,6 +101,7 @@ function scoreMeals(p: Profile, plan: Plan): Scored[] {
       if (p.goal === "maintain" && n.calories >= 300 && n.calories <= 560) { match += 8; reasons.push("Balanced portion for maintenance calories"); }
       if (proDensity >= 0.25 && p.goal !== "gain") reasons.push("Protein-forward — protects lean muscle");
 
+      // Condition adjustments
       if (p.conditions.includes("diabetes")) {
         if (n.sugar <= 8) { match += 5; reasons.push("Low sugar — steady glucose response"); }
         else { match -= 14; warnings.push(`${n.sugar}g sugar — watch glucose`); }
@@ -109,6 +115,7 @@ function scoreMeals(p: Profile, plan: Plan): Scored[] {
         if (n.sodium > 500 || n.protein > 40) { match -= 18; warnings.push("High protein/sodium — check with your doctor"); }
       }
 
+      // Sub-scores
       const proteinScore = clamp(Math.round((proDensity / 0.4) * 100));
       const micros = [n.calcium >= 100, n.iron >= 2.5, n.potassium >= 500, n.vitA >= 100, n.vitC >= 30, n.vitD >= 0.3, n.vitB12 >= 0.5, n.magnesium >= 80, n.omega3 >= 0.3, n.fiber >= 6];
       const nutritionScore = clamp(Math.round((micros.filter(Boolean).length / micros.length) * 100) + 15);
@@ -139,7 +146,7 @@ function coachMessage(p: Profile, plan: Plan, top: Scored | undefined): string {
   } would climb to the top instead.`;
 }
 
-// ---- Animated Score Ring -------------------------------------
+// ---- Animated Score Ring (signature element) -----------------
 function Ring({ value, label, size = 76, color = "#f5a50a", suffix = "" }: {
   value: number; label: string; size?: number; color?: string; suffix?: string;
 }) {
@@ -221,28 +228,31 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
 
   return (
     <article className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
-      <div className="flex flex-wrap items-center gap-4 p-5 sm:p-6">
-        <div className="relative grid size-20 shrink-0 place-items-center overflow-hidden rounded-2xl text-4xl"
-          style={{ background: `linear-gradient(135deg, ${m.tint}33, ${m.tint}14)` }}>
-          {m.image
-            ? <img src={m.image} alt={m.name} className="absolute inset-0 h-full w-full object-cover" />
-            : <span aria-hidden>{m.emoji}</span>}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            {rank === 0 && <span className="rounded-full bg-amber-brand px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-ink">Top pick</span>}
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">{m.category} · {m.diet === "nonveg" ? "Non-veg" : m.diet === "egg" ? "Egg" : m.diet === "vegan" ? "Vegan" : "Veg"}</span>
+      {/* header */}
+      <div className="p-5 sm:p-6">
+        <div className="flex items-start gap-4">
+          <div className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl text-3xl sm:size-20 sm:text-4xl"
+            style={{ background: `linear-gradient(135deg, ${m.tint}33, ${m.tint}14)` }}>
+            {m.image
+              ? <img src={m.image} alt={m.name} className="absolute inset-0 h-full w-full object-cover" />
+              : <span aria-hidden>{m.emoji}</span>}
           </div>
-          <h4 className="mt-0.5 truncate font-display text-xl text-white">{m.name}</h4>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#b8b09c]">
-            <span className="inline-flex items-center gap-1"><Star size={12} className="fill-amber-brand text-amber-brand" /> {m.rating} ({m.reviewCount})</span>
-            <span className="inline-flex items-center gap-1"><Clock size={12} /> {m.prepTime}</span>
-            <span>{m.serving}</span>
-            <span>{spice}</span>
-          </p>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              {rank === 0 && <span className="whitespace-nowrap rounded-full bg-amber-brand px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-ink">Top pick</span>}
+              <span className="whitespace-nowrap text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">{m.category} · {m.diet === "nonveg" ? "Non-veg" : m.diet === "egg" ? "Egg" : m.diet === "vegan" ? "Vegan" : "Veg"}</span>
+            </div>
+            <h4 className="mt-1 font-display text-lg leading-snug text-white sm:text-xl">{m.name}</h4>
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#b8b09c]">
+              <span className="inline-flex items-center gap-1 whitespace-nowrap"><Star size={12} className="fill-amber-brand text-amber-brand" /> {m.rating} ({m.reviewCount})</span>
+              <span className="inline-flex items-center gap-1 whitespace-nowrap"><Clock size={12} /> {m.prepTime}</span>
+              <span className="whitespace-nowrap">{m.serving}</span>
+              <span className="whitespace-nowrap">{spice}</span>
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <Ring value={s.match} label="Match" size={64} suffix="%" />
+        <div className="mt-4 flex items-center justify-between gap-4 border-t border-white/5 pt-4">
+          <Ring value={s.match} label="Match" size={60} suffix="%" />
           <div className="text-right">
             <b className="block font-mono text-2xl text-amber-brand">₹{m.price}</b>
             <button onClick={() => setOpen(!open)}
@@ -254,6 +264,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
         </div>
       </div>
 
+      {/* quick macros strip */}
       <div className="grid grid-cols-5 divide-x divide-white/5 border-y border-white/10 bg-white/[0.03] text-center">
         {[["kcal", n.calories], ["Protein", `${n.protein}g`], ["Carbs", `${n.carbs}g`], ["Fat", `${n.fat}g`], ["Fiber", `${n.fiber}g`]].map(([l, v]) => (
           <div key={l as string} className="py-2.5">
@@ -265,6 +276,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
 
       {open && (
         <div className="space-y-6 p-5 sm:p-6">
+          {/* why recommended */}
           <div className="rounded-2xl border border-amber-brand/20 bg-amber-brand/[0.06] p-4">
             <p className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-amber-brand"><Sparkles size={13} /> Why this meal for you</p>
             <ul className="mt-2 space-y-1.5 text-sm text-cream">
@@ -273,6 +285,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             </ul>
           </div>
 
+          {/* score rings */}
           <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:justify-around">
             <Ring value={s.proteinScore} label="Protein Score" />
             <Ring value={s.nutritionScore} label="Nutrition Score" color="#7fb544" />
@@ -281,6 +294,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             <Ring value={s.match} label="Goal Match" suffix="%" />
           </div>
 
+          {/* full nutrition */}
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">Complete nutrition · per serving</p>
             <div className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-3 lg:grid-cols-4">
@@ -293,6 +307,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             </div>
           </div>
 
+          {/* tags */}
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <p className="mb-2 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-leaf"><ShieldCheck size={13} /> Best for</p>
@@ -310,6 +325,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             </div>
           </div>
 
+          {/* logistics */}
           <div className="grid gap-3 text-sm sm:grid-cols-2">
             <p className="flex gap-2 text-cream"><UtensilsCrossed size={16} className="mt-0.5 shrink-0 text-amber-brand" /><span><b className="text-white">Ingredients:</b> {m.ingredients.join(", ")}</span></p>
             <p className="flex gap-2 text-cream"><AlertTriangle size={16} className="mt-0.5 shrink-0 text-[#e2574c]" /><span><b className="text-white">Allergens:</b> {m.allergens.length ? m.allergens.map((a) => ALLERGY_LABEL[a]?.replace(" Allergy", "").replace(" Intolerance", "")).join(", ") : "None"}</span></p>
@@ -317,6 +333,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             <p className="flex gap-2 text-cream"><Refrigerator size={16} className="mt-0.5 shrink-0 text-leaf" /><span><b className="text-white">Storage:</b> {m.storage}</span></p>
           </div>
 
+          {/* pair with + similar */}
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">Pair with</p>
@@ -330,6 +347,7 @@ function MealCard({ s, rank }: { s: Scored; rank: number }) {
             </div>
           </div>
 
+          {/* reviews */}
           <div>
             <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">Customer reviews</p>
             <div className="mt-2 grid gap-3 sm:grid-cols-2">
@@ -378,6 +396,7 @@ export function NutritionDashboard() {
 
   return (
     <section className="mt-8 overflow-hidden rounded-3xl bg-ink text-cream">
+      {/* ---- header ---- */}
       <div className="border-b border-white/10 p-7 sm:p-9">
         <p className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.22em] text-amber-brand">
           <Activity size={14} /> Personalized Nutrition Dashboard
@@ -388,6 +407,7 @@ export function NutritionDashboard() {
         </p>
       </div>
 
+      {/* ---- profile form ---- */}
       <div className="p-7 sm:p-9">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <label className={labelCls}>Age
@@ -454,8 +474,10 @@ export function NutritionDashboard() {
         </button>
       </div>
 
+      {/* ---- results ---- */}
       {analyzed && (
         <div ref={resultsRef} className="border-t border-white/10 p-7 sm:p-9">
+          {/* daily targets */}
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">Your daily targets</p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:justify-around sm:p-6">
             <Ring value={analyzed.plan.bmiPct} label={`BMI ${analyzed.plan.bmi} · ${analyzed.plan.bmiLabel}`} size={92}
@@ -480,6 +502,7 @@ export function NutritionDashboard() {
             </div>
           </div>
 
+          {/* AI coach */}
           <div className="mt-6 rounded-3xl border border-amber-brand/25 bg-gradient-to-br from-amber-brand/[0.12] to-transparent p-5 sm:p-6">
             <p className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-amber-brand">
               <Brain size={14} /> AI Nutrition Coach
@@ -487,6 +510,7 @@ export function NutritionDashboard() {
             <p className="mt-2 text-sm leading-relaxed text-cream">{coach}</p>
           </div>
 
+          {/* recommended meals */}
           <div className="mt-8 flex items-end justify-between gap-3">
             <div>
               <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#b8b09c]">Matched from our menu</p>
