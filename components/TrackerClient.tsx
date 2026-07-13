@@ -68,7 +68,7 @@ function ProteinWidget() {
   }, [grams, pref]);
 
   return (
-    <section className="grid gap-8 rounded-3xl border border-line bg-white/[0.02] p-6 sm:p-8 lg:grid-cols-2">
+    <section className="grid gap-8 rounded-3xl border border-line bg-white/2 p-6 sm:p-8 lg:grid-cols-2">
       <div>
         <label className="block text-[10px] font-extrabold uppercase tracking-widest text-muted-fg">
           Your weight: <b className="font-mono text-base text-amber-deep">{w} kg</b>
@@ -147,14 +147,14 @@ function DeliveryZones() {
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {DELIVERY_ZONES.map((z) => (
-          <div key={z.zone} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+          <div key={z.zone} className="rounded-2xl border border-white/10 bg-white/4 p-5">
             <p className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-brand">
               <MapPin size={13} /> {z.zone}
             </p>
             <p className="mt-1 font-mono text-xs text-[#8f887a]">ETA {z.eta}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {z.areas.map((a) => (
-                <span key={a} className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[11px] font-bold text-cream">{a}</span>
+                <span key={a} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-cream">{a}</span>
               ))}
             </div>
           </div>
@@ -163,7 +163,7 @@ function DeliveryZones() {
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {DELIVERY_SLOTS.map((s) => (
-          <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-center">
+          <div key={s.label} className="rounded-2xl border border-white/10 bg-white/4 p-4 text-center">
             <span className="text-2xl" aria-hidden>{s.icon}</span>
             <b className="mt-1 block text-sm text-white">{s.label}</b>
             <p className="mt-0.5 flex items-center justify-center gap-1 font-mono text-xs text-amber-brand"><Clock size={11} /> {s.time}</p>
