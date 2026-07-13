@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #26241f;
+  --color-ink-soft: #4a463d;
+  --color-amber-brand: #f5a50a;
+  --color-amber-deep: #d98e00;
+  --color-cream: #fbf7ef;
+  --color-leaf: #3e7d32;
+  --color-chili: #c8502e;
+  --color-wa: #1fae53;
+  --font-display: var(--font-anton);
+  --font-body: var(--font-manrope);
+}
+
+:root {
+  --bg: #fbf7ef;
+  --card: #ffffff;
+  --line: #e7e0d2;
+  --fg: #26241f;
+  --muted: #8a8375;
+}
+.dark {
+  --bg: #16140f;
+  --card: #201d16;
+  --line: #37332a;
+  --fg: #f2ede1;
+  --muted: #9a927f;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); }
+.font-display { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.01em; }
+.card-surface { background: var(--card); border: 1px solid var(--line); }
+.text-muted-fg { color: var(--muted); }
+.border-line { border-color: var(--line); }
+.bg-surface { background: var(--card); }
+.bg-page { background: var(--bg); }
+.text-fg { color: var(--fg); }
+
+.macro-strip { border-top: 2.5px solid var(--fg); border-bottom: 2.5px solid var(--fg); }
+.macro-strip > div + div { border-left: 1px solid var(--line); }
+
+::selection { background: #f5a50a; color: #26241f; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
